@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Declarative Partial Updates - Brasileirão fixtures demo</title>
+    <link rel="stylesheet" href="dpu-brasileirao-demo.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <p class="eyebrow">Declarative Partial Updates</p>
+        <h1>Próximos 5 jogos - Brasileirão Série A</h1>
+        <p class="sub">Live fixtures from football-data.org, streamed into the DOM one card at a time</p>
+        <span class="badge" id="support-badge"><span class="dot"></span><span id="support-text">Checking support…</span></span>
+      </header>
+
+      <section class="panel" aria-labelledby="panel-heading">
+        <h2 id="panel-heading" class="visually-hidden">Load fixtures</h2>
+        <p>Paste your free <a href="https://www.football-data.org/client/register" target="_blank" rel="noopener">football-data.org</a> API token to fetch real fixtures. No account? Use the sample data button instead, it demonstrates the same streaming insertion with placeholder crests.</p>
+        <div class="row">
+          <label class="visually-hidden" for="token">Football-data.org API token</label>
+          <input type="password" id="token" name="token" placeholder="X-Auth-Token" autocomplete="off" value="20c3fb07018f478e89aa49c3cf7b0466" />
+          <button type="button" id="load-btn">Load fixtures</button>
+        </div>
+        <div class="actions">
+          <button type="button" class="ghost" id="sample-btn">Use sample data instead</button>
+          <button type="button" class="ghost" id="reset-btn">Reset</button>
+        </div>
+        <p class="status-msg" id="status" role="status" aria-live="polite"></p>
+      </section>
+
+      <ul class="tickets" id="tickets" aria-label="Upcoming fixtures"></ul>
+
+      <div class="log" id="log" role="log" aria-live="polite"><p class="dim">Waiting for a request...</p></div>
+
+      <details>
+        <summary>What's real here vs. simulated</summary>
+        <p class="details-text details-text--intro">
+          The free football-data.org tier returns all 5 fixtures in a single JSON response, this page deliberately drips each fixture into its ticket at a staggered interval using DPU's new JS insertion methods
+          (<code>streamHTML</code> / <code>appendHTML</code>) where the browser supports them, falling back to a small manual
+          polyfill otherwise, so you can see what the insertion pattern looks like once a real backend does stream fragments as
+          they resolve. The declarative half of the proposal <code>&lt;?start&gt;</code>/<code>&lt;?end&gt;</code> processing
+          instructions plus a <code>&lt;template for&gt;</code>, needs the *initial* HTTP response itself to be streamed out of
+          order, which a static page like this one can't produce on its own. Here's the shape of it:
+        </p>
+        <pre>&lt;div id="match-3"&gt;&lt;?start name="match-3"&gt;&lt;?end&gt;&lt;/div&gt;
+...
+&lt;template for="match-3"&gt;
+  &lt;div class="ticket"&gt;...&lt;/div&gt;
+&lt;/template&gt;</pre>
+        <p class="details-text">To test native execution, enable <code>chrome://flags/#enable-experimental-web-platform-features</code> in Chrome 148+.</p>
+      </details>
+    </div>
+
+    <script src="dpu-brasileirao-demo.js"></script>
+  </body>
+</html>
