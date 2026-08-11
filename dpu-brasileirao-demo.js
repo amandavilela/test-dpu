@@ -19,6 +19,15 @@
     supportText.textContent = 'Fallback JS polyfill (native DPU not detected)';
   }
 
+  // Default Sanitizer config strips img elements and class/style attributes,
+  // all of which the ticket body markup relies on, so it needs its own allow list.
+  const cardSanitizer = typeof Sanitizer !== 'undefined'
+    ? new Sanitizer({
+        elements: ['div', 'span', 'img'],
+        attributes: ['class', 'src', 'alt', 'loading', 'aria-hidden', 'style']
+      })
+    : null;
+
   const CLUB_COLORS = {
     'Flamengo': '#C8102E',
     'Palmeiras': '#006437',
@@ -30,6 +39,19 @@
     'Cruzeiro': '#003399',
     'Fluminense': '#7A1E3C',
     'Botafogo': '#1B1B1B'
+  };
+
+  const CLUB_TLA = {
+    'Flamengo': 'FLA',
+    'Palmeiras': 'PAL',
+    'Corinthians': 'COR',
+    'São Paulo': 'SAO',
+    'Grêmio': 'GRE',
+    'Internacional': 'INT',
+    'Atlético-MG': 'CAM',
+    'Cruzeiro': 'CRU',
+    'Fluminense': 'FLU',
+    'Botafogo': 'BOT'
   };
 
   const SAMPLE_MATCHES = [
@@ -82,16 +104,11 @@
     }
   }
 
-  function initials(name) {
-    return name.split(/[\s-]+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
-  }
-
-  function svgCrest(name, color) {
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
-      <circle cx="20" cy="20" r="20" fill="${color}" />
-      <text x="20" y="26" font-family="sans-serif" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">${initials(name)}</text>
-    </svg>`;
-    return `data:image/svg+xml;base64,${btoa(svg)}`;
+  function crestFor(tla, crestUrl, color) {
+    if (crestUrl) {
+      return `<img src="${crestUrl}" alt="" loading="lazy" />`;
+    }
+    return `<div class="crest-dot" style="background-color:${color}" aria-hidden="true">${tla}</div>`;
   }
 
   function fragmentFor(match) {
@@ -109,9 +126,9 @@
     `;
 
     const body = `
-      <div class="team home"><img src="${match.homeCrest}" alt="" loading="lazy" /><span class="name">${match.home}</span></div>
+      <div class="team home">${crestFor(match.homeTla, match.homeCrest, match.homeColor)}<span class="name">${match.home}</span></div>
       <span class="vs" aria-hidden="true">VS</span>
-      <div class="team away"><img src="${match.awayCrest}" alt="" loading="lazy" /><span class="name">${match.away}</span></div>
+      <div class="team away">${crestFor(match.awayTla, match.awayCrest, match.awayColor)}<span class="name">${match.away}</span></div>
     `;
 
     const summary = `${match.home} vs ${match.away}, ${fullDate}`;
@@ -126,7 +143,7 @@
       const position = index + 1;
 
       if (typeof bodyEl.appendHTML === 'function') {
-        bodyEl.appendHTML(frag.body);
+        bodyEl.appendHTML(frag.body, { sanitizer: cardSanitizer });
         log(`fragment ${position}/5 ready → inserted via <code>appendHTML</code> (native)`);
       } else {
         bodyEl.innerHTML = frag.body;
@@ -190,6 +207,8 @@
         away: m.awayTeam.shortName || m.awayTeam.name,
         homeCrest: m.homeTeam.crest,
         awayCrest: m.awayTeam.crest,
+        homeTla: m.homeTeam.tla,
+        awayTla: m.awayTeam.tla,
         date: m.utcDate
       }));
 
@@ -209,12 +228,14 @@
   });
 
   sampleBtn.addEventListener('click', async () => {
-    setStatus('Using sample data (generated crests).', 'ok');
+    setStatus('Using sample data (team-color crests).', 'ok');
 
     const matches = SAMPLE_MATCHES.map((m) => ({
       ...m,
-      homeCrest: svgCrest(m.home, CLUB_COLORS[m.home] || '#6a6552'),
-      awayCrest: svgCrest(m.away, CLUB_COLORS[m.away] || '#6a6552')
+      homeColor: CLUB_COLORS[m.home] || '#6a6552',
+      awayColor: CLUB_COLORS[m.away] || '#6a6552',
+      homeTla: CLUB_TLA[m.home],
+      awayTla: CLUB_TLA[m.away]
     }));
 
     await streamMatches(matches);
