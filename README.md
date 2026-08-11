@@ -8,7 +8,11 @@ cards. Skeleton placeholders are shown immediately, then each fixture is
 [football-data.org](https://www.football-data.org/) API or from generated
 sample data.
 
-This PoC only covers the **HTML insertion** of DPU: the new `appendHTML()`.
+This PoC covers both halves of DPU: the new HTML insertion/streaming methods
+(`streamHTML()`) and the declarative out-of-order patching pattern
+(`<?start>`/`<?end>` markers plus `<template for>`). There's no JS fallback,
+it's a native-only demo, so without browser support the fixtures stay as
+placeholders.
 
 ## Running locally
 
@@ -17,7 +21,3 @@ bun bun-serve.js
 ```
 
 Then open `http://localhost:4040`.
-
-## TODO
-
-- [ ] implement out-of-order streaming for skeleton placeholders/content

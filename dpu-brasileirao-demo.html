@@ -37,19 +37,26 @@
       <details>
         <summary>What's real here vs. simulated</summary>
         <p class="details-text details-text--intro">
-          The free football-data.org tier returns all 5 fixtures in a single JSON response, this page deliberately drips each fixture into its ticket at a staggered interval using DPU's new JS insertion methods
-          (<code>streamHTML</code> / <code>appendHTML</code>) where the browser supports them, falling back to a small manual
-          polyfill otherwise, so you can see what the insertion pattern looks like once a real backend does stream fragments as
-          they resolve. The declarative half of the proposal <code>&lt;?start&gt;</code>/<code>&lt;?end&gt;</code> processing
-          instructions plus a <code>&lt;template for&gt;</code>, needs the *initial* HTTP response itself to be streamed out of
-          order, which a static page like this one can't produce on its own. Here's the shape of it:
+          The free football-data.org tier returns all 5 fixtures in a single JSON response, so this page deliberately
+          shuffles their arrival order and drips each one in at a staggered interval, to stand in for fragments landing
+          out of order from a real backend. Each ticket is rendered up front with a marker pair,
+          <code>&lt;?start name="match-3"&gt;&lt;?end&gt;</code>, wrapping fallback skeleton content; each fixture then
+          arrives as a <code>&lt;template for="match-3"&gt;</code> that patches into its marker whenever it shows up,
+          regardless of arrival order. The whole thing is written through a single sanitized
+          <code>element.streamHTML()</code> call, no JavaScript fallback, the browser itself resolves the
+          out-of-order patches. Here's the shape of it:
         </p>
-        <pre>&lt;div id="match-3"&gt;&lt;?start name="match-3"&gt;&lt;?end&gt;&lt;/div&gt;
+        <pre>&lt;li id="match-3"&gt;&lt;?start name="match-3"&gt;...skeleton...&lt;?end&gt;&lt;/li&gt;
 ...
 &lt;template for="match-3"&gt;
   &lt;div class="ticket"&gt;...&lt;/div&gt;
 &lt;/template&gt;</pre>
-        <p class="details-text">To test native execution, enable <code>chrome://flags/#enable-experimental-web-platform-features</code> in Chrome 148+.</p>
+        <p class="details-text">
+          This still can't make the <em>initial</em> page navigation itself stream out of order, that would need a
+          server that chunks the first HTTP response, which this static page doesn't have. Without native support
+          the fixtures below just stay as placeholders, enable
+          <code>chrome://flags/#enable-experimental-web-platform-features</code> in Chrome 148+ to see them resolve.
+        </p>
       </details>
     </div>
 
