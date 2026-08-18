@@ -313,7 +313,7 @@ button:disabled {
 }
 
 .skeleton .body {
-  color: transparent;
+    opacity: .5;
 }
 
 .skeleton .team .name,
