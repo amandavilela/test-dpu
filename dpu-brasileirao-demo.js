@@ -39,7 +39,7 @@
   const cardSanitizer = typeof Sanitizer !== 'undefined'
     ? new Sanitizer({
         elements: ['template', 'li', 'time', 'div', 'span', 'p', 'img'],
-        attributes: ['for', 'id', 'class', 'datetime', 'src', 'alt', 'loading', 'aria-hidden', 'style']
+        attributes: ['for', 'id', 'class', 'datetime', 'src', 'alt', 'loading', 'aria-hidden', 'style', 'tabindex']
       })
     : null;
 
@@ -155,7 +155,7 @@
   function shellMarkup(count) {
     let html = '';
     for (let i = 0; i < count; i++) {
-      html += `<li class="ticket skeleton" id="match-${i}">` +
+      html += `<li class="ticket skeleton" id="match-${i}" tabindex="0">` +
         `<span class="live-dot" aria-hidden="true"></span>` +
         `<?start name="match-${i}">` +
         `<time class="stub"><span class="day">00</span><span class="mon">XXX</span><span class="time">00:00</span></time>` +

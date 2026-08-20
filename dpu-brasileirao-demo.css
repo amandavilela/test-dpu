@@ -1,3 +1,8 @@
+*:focus {
+  outline: 3px dashed #ff0000;
+  outline-offset: 2px;
+}
+
 :root {
   --pitch: #0B3D2E;
   --pitch-dark: #082A20;
