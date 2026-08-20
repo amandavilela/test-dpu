@@ -17,7 +17,3 @@ bun bun-serve.js
 ```
 
 Then open `http://localhost:4040`.
-
-## TODO
-
-- [ ] implement out-of-order streaming for skeleton placeholders/content
